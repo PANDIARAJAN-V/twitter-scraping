@@ -1,58 +1,67 @@
-# twitter-scraping
-twitter scrape using python
-import snscrape.modules.twitter as sntwitter
-import pandas as pd
-import streamlit as st
-import pymongo
+#Indroduction:
+ Today, data is scattered everywhere in the world. Especially in social media, there may be a big quantity of data on Facebook, Instagram, Youtube, Twitter, etc. This consists of pictures and films on Youtube and Instagram as compared to Facebook and Twitter.and I  got the real facts on Twitter, I scrape the data from Twitter. the data like (date, id, url, tweet content, user,reply count, retweet count,language, source, like count etc) from twitter
+            
+            
+            
+SNSCRAPE:
+               scraping twitter using "snscrape" library in python.snscrape is a scraper for social network services(sns).it scraping like user id,hashtags,searches,from date and likes
+               
+               
 
-def scrape_tweets(keyword, start_date, end_date, tweet_count):
+Requiremnts:
+  		snscrape requires python 3.8 or higher.the python ackage dependencies are installed automattically when you insall snscrape.
+        
+        
+        pip install snscrape
+        
+  
 
-    tweets_list = []
-    for i, tweet in enumerate(sntwitter.TwitterSearchScraper(f'{keyword} since:{start_date} until:{end_date}').get_items()):
-        if i >= tweet_count:
-            break
-        tweets_list.append([tweet.date, tweet.id, tweet.url, tweet.content, tweet.user.username, tweet.replyCount, tweet.retweetCount, tweet.lang, tweet.sourceLabel, tweet.likeCount])
-    
-    df = pd.DataFrame(tweets_list, columns=['Date', 'ID', 'URL', 'Content', 'User', 'Reply Count', 'Retweet Count', 'Language', 'Source', 'Like Count'])
-    return df
+Install the necessary libraries:
 
+Snscrape: to scrape Twitter data.
+Pandas: to create dataframes.
+Pymongo: to interact with MongoDB.
+Streamlit: to create a GUI.
+Create a function to scrape Twitter data using snscrape. The function should take the following inputs:
 
+Keyword or hashtag to search for.
+Start and end date range.
+Number of tweets to scrape.
+The function should return a list of dictionaries, where each dictionary represents a tweet and contains the following fields:
 
-def insert_to_mongodb(df, collection_name, keyword):
- 
-    client = pymongo.MongoClient("mongodb://localhost:27017/")
-    
+Date
+ID
+URL
+Tweet content
+User
+Reply count
+Retweet count
+Language
+Source
+Like count
+Create a function to insert the scraped data into MongoDB. The function should take the following inputs:
 
-    db = client["twitter_data"]
-    collection = db[collection_name]
-    
+Collection name
+List of scraped tweets
+The function should insert each tweet as a document into the specified collection.
 
-    data_dict = df.to_dict(orient='records')
-    for data in data_dict:
-        data["Scraped Word"] = keyword
-        collection.insert_one(data)
+Create a function to download the scraped data in CSV and JSON format. The function should take the following inputs:
 
+Collection name
+Output file path
+The function should retrieve all the documents from the specified collection and write them to the output file in the desired format.
 
+Create a Streamlit app with the following features:
 
-st.title('Twitter Scraper')
+Text input for the keyword or hashtag to search for.
+Date range input using Streamlit's DateInput widget.
+Number input for the number of tweets to scrape.
+Button to start the scraping process.
+Table to display the scraped data.
+Button to upload the data to MongoDB.
+Button to download the data in CSV and JSON format.
+When the user clicks on the "Scrape" button, call the scraping function with the specified inputs and display the scraped data in a table.
 
+When the user clicks on the "Upload" button, call the insert function with the collection name and scraped data.
 
-keyword = st.text_input('Enter the keyword to search')
-start_date = st.date_input('Start date')
-end_date = st.date_input('End date')
-tweet_count = st.number_input('Enter the number of tweets to scrape')
-
-
-if st.checkbox('Scrape'):
-    tweets = scrape_tweets(keyword, (start_date),(end_date), tweet_count)
-    df = pd.DataFrame(tweets)
-    st.write(df)
-    if st.button('Upload to MongoDB'):
-        store_tweets_in_db(tweets, keyword)
-        st.write('Data uploaded to MongoDB!')
-    if st.button('Download as CSV'):
-        csv = df.to_csv(index=False)
-        st.download_button('Download CSV', data=csv, file_name=f'{keyword}.csv', mime='text/csv')
-    if st.button('Download as JSON'):
-        json = df.to_json(orient='records')
-        st.download_button('Download JSON', data=json, file_name=f'{keyword}.json', mime='application/json')
+When the user clicks on the "Download CSV" or "Download JSON" button, call the download function with the collection name and output file path
